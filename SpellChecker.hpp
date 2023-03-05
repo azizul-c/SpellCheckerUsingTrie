@@ -15,7 +15,7 @@ class Trie
 public:
     Trie();
     bool insert(std::string word);
-    bool searchPrefix(std::string prefix);
+    void searchPrefix(std::string prefix);
     bool erase(std::string word);
     void printWords();
     void spellcheck(std::string word);
@@ -24,6 +24,13 @@ public:
     void size();
 
 private:
+    Node *findNode(std::string word);
+    void inOrderTraversal(Node *currNode, std::string prefix);
+    Node *root;
+    Node *currentNode;
+    Node *nullNode;
+    char currentCharacter;
+    int countPrefixInstances;
 };
 
 class Node
@@ -33,9 +40,13 @@ public:
     Node(char c);
     char getCharacter();
     bool isEndOfWord();
+    bool isNodeValid();
+    void setCharAsEndOfWord(bool lastLetter);
+
+    Node **children;
 
 private:
     char character;
     bool endOfWord;
-    Node *children;
+    bool validNode;
 };
