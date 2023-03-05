@@ -106,7 +106,7 @@ void Trie::searchPrefix(std::string prefix)
 
     if (findNode(prefix)->isNodeValid()) // if the prefix exists
     {
-        inOrderTraversal(findNode(prefix), prefix);
+        inOrderTraversalForPrefix(findNode(prefix));
 
         std::cout << "count is " << countPrefixInstances << "\n";
     }
@@ -116,27 +116,52 @@ void Trie::searchPrefix(std::string prefix)
     }
 }
 
-void Trie::inOrderTraversal(Node *currNode, std::string prefix)
+void Trie::inOrderTraversalForPrefix(Node *currNode)
 {
+    // Base case
+    if (currNode->isNodeValid() == false)
+    {
+        return;
+    }
+
     // Traverse Left subtree
+    inOrderTraversalForPrefix(currNode->children[0]);
 
     // Check if current node is end of a word
+    if (currNode->isEndOfWord())
+    {
+        countPrefixInstances++;
+    }
 
-    // Traverse right subtree
+    // Traverse right subtrees
+    for (int i = 1; i < 26; i++)
+    {
+        if (currNode->isNodeValid() == true)
+        {
+            inOrderTraversalForPrefix(currNode->children[i]);
+        }
+    }
 }
 
-bool Trie::isEmpty()
+bool Trie::erase(std::string word)
+{
+    if (findNode(word)->isEndOfWord())
+    {
+    }
+}
+
+void Trie::isEmpty()
 {
     // check that the root has no valid children nodes (they would exist if there are words)
     for (int i = 0; i < 26; i++)
     {
         if (root->children[i]->isNodeValid() == true)
         {
-            return false;
+            std::cout << "empty 0\n"; // trie is not empty
         }
     }
 
-    return true;
+    std::cout << "empty 1\n"; // trie is empty
 }
 
 /*

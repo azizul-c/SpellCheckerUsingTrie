@@ -19,13 +19,13 @@ public:
     bool erase(std::string word);
     void printWords();
     void spellcheck(std::string word);
-    bool isEmpty();
+    void isEmpty();
     bool clear();
     void size();
 
 private:
     Node *findNode(std::string word);
-    void inOrderTraversal(Node *currNode, std::string prefix);
+    void inOrderTraversalForPrefix(Node *currNode);
     Node *root;
     Node *currentNode;
     Node *nullNode;
