@@ -49,6 +49,7 @@ Trie::Trie()
 {
     root = new Node('\0');
     nullNode = new Node();
+    numberOfWords = 0;
 }
 
 bool Trie::insert(std::string word)
@@ -75,6 +76,7 @@ bool Trie::insert(std::string word)
 
     // currentNode will be the last letter of the word when the for loop ends, so mark it as the end of the word
     currentNode->setCharAsEndOfWord(true);
+    numberOfWords++;
 }
 
 Node *Trie::findNode(std::string word)
@@ -145,23 +147,33 @@ void Trie::inOrderTraversalForPrefix(Node *currNode)
 
 bool Trie::erase(std::string word)
 {
-    if (findNode(word)->isEndOfWord())
-    {
-    }
+    // using a for loop, traverse down the trie until end of the given word
+    // during the traversal, accumulate all the nodes that comprise the word into an array
+    // iterate from the end of the array, and delete all the nodes until you reach another "endOfWord" node
+    // (or if there's no other endOfWord, delete all the nodes)
+}
+
+bool Trie::clear()
+{
+    // similar to above. use an in order traversal. accumulate all the nodes into a vector.
+    // go thru the vector and delete all the nodes
 }
 
 void Trie::isEmpty()
 {
-    // check that the root has no valid children nodes (they would exist if there are words)
-    for (int i = 0; i < 26; i++)
+    if (numberOfWords == 0)
     {
-        if (root->children[i]->isNodeValid() == true)
-        {
-            std::cout << "empty 0\n"; // trie is not empty
-        }
+        std::cout << "empty 1\n"; // trie is empty
     }
+    else
+    {
+        std::cout << "empty 0\n"; // trie is not empty
+    }
+}
 
-    std::cout << "empty 1\n"; // trie is empty
+void Trie::size()
+{
+    std::cout << "number of words is " << numberOfWords << "\n";
 }
 
 /*

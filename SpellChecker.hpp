@@ -31,6 +31,7 @@ private:
     Node *nullNode;
     char currentCharacter;
     int countPrefixInstances;
+    int numberOfWords;
 };
 
 class Node
