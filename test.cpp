@@ -15,6 +15,7 @@ Email:  a48chowd@uwaterloo.ca
 int main()
 {
     std::string command, word, prefix;
+    Trie spellchecker;
 
     while (std::cin >> command)
     {
@@ -25,11 +26,22 @@ int main()
         else if (command == "i") // insert a word
         {
             std::cin >> word;
+
+            if (spellchecker.insert(word))
+            {
+                std::cout << "success\n";
+            }
+            else
+            {
+                std::cout << "failure\n";
+            }
         }
 
         else if (command == "c") // search for a prefix
         {
             std::cin >> prefix;
+
+            spellchecker.searchPrefix(prefix);
         }
 
         else if (command == "e") // erase a word
@@ -48,14 +60,20 @@ int main()
 
         else if (command == "empty") // check if trie is empty
         {
+            spellchecker.isEmpty();
         }
 
         else if (command == "clear") // clear the trie
         {
+            if (spellchecker.clear())
+            {
+                std::cout << "success\n";
+            }
         }
 
         else if (command == "size") // prints number of words in trie
         {
+            spellchecker.size();
         }
 
         else if (command == "exit")

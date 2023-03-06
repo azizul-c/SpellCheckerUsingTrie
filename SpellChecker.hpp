@@ -49,6 +49,8 @@ public:
     bool isEndOfWord();
     bool isNodeValid();
     void setCharAsEndOfWord(bool lastLetter);
+    void modifyNodeValidity(bool modification);
+    void setCharacter(char c);
 
     Node **children;
 

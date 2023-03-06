@@ -14,7 +14,9 @@ Node::Node()
 
 Node::~Node()
 {
-    delete children;
+    // validNode = false;
+    // character = '\0';
+    // delete children;
 }
 
 Node::Node(char c)
@@ -22,7 +24,13 @@ Node::Node(char c)
     character = c;
     endOfWord = false;
     validNode = true;
+
     children = new Node *[26];
+
+    for (int i = 0; i < 26; i++)
+    {
+        children[i] = new Node();
+    }
 }
 
 char Node::getCharacter()
@@ -43,6 +51,16 @@ bool Node::isNodeValid()
 void Node::setCharAsEndOfWord(bool lastLetter)
 {
     endOfWord = lastLetter;
+}
+
+void Node::modifyNodeValidity(bool modification)
+{
+    validNode = modification;
+}
+
+void Node::setCharacter(char c)
+{
+    character = c;
 }
 
 /*
@@ -83,15 +101,17 @@ bool Trie::insert(std::string word)
 
             // Create a new node for the current letter of the word, if there isn't a valid node for that letter yet
             currentNode->children[currentCharacter - 'A'] = new Node(currentCharacter);
-
-            // Update the current node to be the current letter of the word
-            currentNode = currentNode->children[currentCharacter - 'A'];
         }
+
+        // Update the current node to be the current letter of the word
+        currentNode = currentNode->children[currentCharacter - 'A'];
     }
 
     // currentNode will be the last letter of the word when the for loop ends, so mark it as the end of the word
     currentNode->setCharAsEndOfWord(true);
     numberOfWords++;
+
+    return true;
 }
 
 Node *Trie::findNode(std::string word)
@@ -142,7 +162,10 @@ void Trie::inOrderTraversalForPrefix(Node *currNode)
     }
 
     // Traverse Left subtree
-    inOrderTraversalForPrefix(currNode->children[0]);
+    if (currNode->children[0]->isNodeValid() == true)
+    {
+        inOrderTraversalForPrefix(currNode->children[0]);
+    }
 
     // Check if current node is end of a word
     if (currNode->isEndOfWord())
@@ -181,16 +204,18 @@ bool Trie::erase(std::string word)
 
         for (int j = word.length() - 1; j >= 0; j--)
         {
+            // if we come across another endOfWord besides the end of the word being erased
             if (nodesToErase[j]->isEndOfWord() && j != word.length() - 1)
             {
                 delete nodesToErase;
-                return true;
+                return true; // don't delete the rest of the letters, because they belong to another word
             }
 
             delete nodesToErase[j];
         }
 
         delete nodesToErase;
+        numberOfWords--;
         return true;
     }
     else
@@ -203,13 +228,25 @@ bool Trie::clear()
 {
     // use an in order traversal. accumulate all the nodes into a vector.
     // go thru the vector and delete all the nodes
-    inOrderTraversalForClear(root);
 
-    for (int i = allNodesInTrie.size() - 1; i >= 0; i--)
+    if (numberOfWords > 0)
     {
-        delete allNodesInTrie[i];
-        allNodesInTrie.pop_back();
+        inOrderTraversalForClear(root);
+
+        for (int i = allNodesInTrie.size() - 1; i > 0; i--)
+        {
+            // allNodesInTrie[0] has the root, we dont want to override it
+
+            allNodesInTrie[i]->modifyNodeValidity(false);
+            allNodesInTrie[i]->setCharacter('\0');
+            allNodesInTrie.pop_back();
+        }
+
+        allNodesInTrie.pop_back(); // pop back once more to remove root
+        numberOfWords = 0;
     }
+
+    return true;
 }
 
 void Trie::inOrderTraversalForClear(Node *currNode)
@@ -221,7 +258,10 @@ void Trie::inOrderTraversalForClear(Node *currNode)
     }
 
     // Traverse Left subtree
-    inOrderTraversalForClear(currNode->children[0]);
+    if (currNode->children[0]->isNodeValid() == true)
+    {
+        inOrderTraversalForClear(currNode->children[0]);
+    }
 
     // Add current node to a vector to collect it
     allNodesInTrie.push_back(currNode);
