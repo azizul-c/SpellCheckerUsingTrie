@@ -136,7 +136,7 @@ void Trie::inOrderTraversalForPrefix(Node *currNode)
     // Traverse right subtrees
     for (int i = 1; i < 26; i++)
     {
-        if (currNode->isNodeValid() == true)
+        if (currNode->children[i]->isNodeValid() == true)
         {
             inOrderTraversalForPrefix(currNode->children[i]);
         }
