@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 // Class Declarations
 class Trie;
@@ -14,6 +15,7 @@ class Trie
 {
 public:
     Trie();
+    ~Trie();
     bool insert(std::string word);
     void searchPrefix(std::string prefix);
     bool erase(std::string word);
@@ -26,18 +28,22 @@ public:
 private:
     Node *findNode(std::string word);
     void inOrderTraversalForPrefix(Node *currNode);
+    void inOrderTraversalForClear(Node *currNode);
     Node *root;
     Node *currentNode;
     Node *nullNode;
     char currentCharacter;
     int countPrefixInstances;
     int numberOfWords;
+    Node **nodesToErase;
+    std::vector<Node *> allNodesInTrie;
 };
 
 class Node
 {
 public:
     Node();
+    ~Node();
     Node(char c);
     char getCharacter();
     bool isEndOfWord();

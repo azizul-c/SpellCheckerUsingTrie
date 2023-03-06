@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include "SpellChecker.hpp"
 
 /*
@@ -9,6 +10,11 @@
 Node::Node()
 {
     validNode = false;
+}
+
+Node::~Node()
+{
+    delete children;
 }
 
 Node::Node(char c)
@@ -50,6 +56,15 @@ Trie::Trie()
     root = new Node('\0');
     nullNode = new Node();
     numberOfWords = 0;
+}
+
+Trie::~Trie()
+{
+    delete root;
+    delete nullNode;
+    delete nodesToErase;
+
+    // need to traverse the tree and delete everything too! (Call clear())
 }
 
 bool Trie::insert(std::string word)
@@ -151,12 +166,74 @@ bool Trie::erase(std::string word)
     // during the traversal, accumulate all the nodes that comprise the word into an array
     // iterate from the end of the array, and delete all the nodes until you reach another "endOfWord" node
     // (or if there's no other endOfWord, delete all the nodes)
+
+    if (findNode(word)->isEndOfWord()) // if the word exists
+    {
+        nodesToErase = new Node *[word.length()];
+        currentNode = root;
+
+        for (int i = 0; i < word.length(); i++)
+        {
+            currentCharacter = word.at(i);
+            currentNode = currentNode->children[currentCharacter - 'A'];
+            nodesToErase[i] = currentNode;
+        }
+
+        for (int j = word.length() - 1; j >= 0; j--)
+        {
+            if (nodesToErase[j]->isEndOfWord() && j != word.length() - 1)
+            {
+                delete nodesToErase;
+                return true;
+            }
+
+            delete nodesToErase[j];
+        }
+
+        delete nodesToErase;
+        return true;
+    }
+    else
+    {
+        return false; // failure
+    }
 }
 
 bool Trie::clear()
 {
-    // similar to above. use an in order traversal. accumulate all the nodes into a vector.
+    // use an in order traversal. accumulate all the nodes into a vector.
     // go thru the vector and delete all the nodes
+    inOrderTraversalForClear(root);
+
+    for (int i = allNodesInTrie.size() - 1; i >= 0; i--)
+    {
+        delete allNodesInTrie[i];
+        allNodesInTrie.pop_back();
+    }
+}
+
+void Trie::inOrderTraversalForClear(Node *currNode)
+{
+    // Base case
+    if (currNode->isNodeValid() == false)
+    {
+        return;
+    }
+
+    // Traverse Left subtree
+    inOrderTraversalForClear(currNode->children[0]);
+
+    // Add current node to a vector to collect it
+    allNodesInTrie.push_back(currNode);
+
+    // Traverse right subtrees
+    for (int i = 1; i < 26; i++)
+    {
+        if (currNode->children[i]->isNodeValid() == true)
+        {
+            inOrderTraversalForClear(currNode->children[i]);
+        }
+    }
 }
 
 void Trie::isEmpty()
