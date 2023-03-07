@@ -66,6 +66,8 @@ int main()
         else if (command == "spellcheck")
         {
             std::cin >> word;
+
+            spellchecker.spellcheck(word);
         }
 
         else if (command == "empty") // check if trie is empty

@@ -39,6 +39,7 @@ private:
     Node **nodesToErase;
     std::vector<Node *> allNodesInTrie;
     std::string tempPrefix;
+    std::string firstLetterOfWord;
 };
 
 class Node
