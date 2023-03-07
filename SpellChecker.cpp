@@ -106,6 +106,21 @@ Trie::~Trie()
 
 bool Trie::insert(std::string word)
 {
+    // Verify that input is only uppercase characters
+    for (int k = 0; k < word.length(); k++)
+    {
+        currentCharacter = word.at(k);
+        if (!isupper(currentCharacter))
+        {
+            throw illegal_exception();
+        }
+    }
+
+    if (findNode(word)->isEndOfWord()) // if the word exists already
+    {
+        return false;
+    }
+
     currentNode = root;
 
     for (int i = 0; i < word.length(); i++)
@@ -159,6 +174,16 @@ Node *Trie::findNode(std::string word)
 
 void Trie::searchPrefix(std::string prefix)
 {
+    // Verify that input is only uppercase characters
+    for (int k = 0; k < prefix.length(); k++)
+    {
+        currentCharacter = prefix.at(k);
+        if (!isupper(currentCharacter))
+        {
+            throw illegal_exception();
+        }
+    }
+
     countPrefixInstances = 0;
 
     if (findNode(prefix)->isNodeValid()) // if the prefix exists
@@ -263,6 +288,16 @@ bool Trie::erase(std::string word)
     // during the traversal, accumulate all the nodes that comprise the word into an array
     // iterate from the end of the array, and delete all the nodes until you reach another "endOfWord" node
     // (or if there's no other endOfWord, delete all the nodes)
+
+    // Verify that input is only uppercase characters
+    for (int k = 0; k < word.length(); k++)
+    {
+        currentCharacter = word.at(k);
+        if (!isupper(currentCharacter))
+        {
+            throw illegal_exception();
+        }
+    }
 
     if (findNode(word)->isEndOfWord()) // if the word exists
     {
@@ -426,3 +461,9 @@ void Trie::size()
 ===  illegal_exception Functions Definitions ===
 ===================================================================
 */
+
+// Note: I used ChatGPT to learn how to implement this
+const char *illegal_exception::what() const throw()
+{
+    return "illegal argument";
+}

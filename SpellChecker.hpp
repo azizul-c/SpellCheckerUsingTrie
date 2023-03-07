@@ -67,3 +67,9 @@ private:
     bool validNode;
     int numberOfChildren;
 };
+
+class illegal_exception : public std::exception
+{
+public:
+    const char *what() const throw();
+};

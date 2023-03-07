@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include "SpellChecker.hpp"
 
@@ -16,24 +17,37 @@ int main()
 {
     std::string command, word, prefix;
     Trie spellchecker;
+    std::ifstream fin("corpus.txt");
 
     while (std::cin >> command)
     {
         if (command == "load")
         {
+            while (fin >> word)
+            {
+                spellchecker.insert(word);
+            }
+            std::cout << "success\n";
         }
 
         else if (command == "i") // insert a word
         {
             std::cin >> word;
 
-            if (spellchecker.insert(word))
+            try
             {
-                std::cout << "success\n";
+                if (spellchecker.insert(word))
+                {
+                    std::cout << "success\n";
+                }
+                else
+                {
+                    std::cout << "failure\n";
+                }
             }
-            else
+            catch (illegal_exception &e)
             {
-                std::cout << "failure\n";
+                std::cout << e.what() << std::endl;
             }
         }
 
@@ -41,20 +55,34 @@ int main()
         {
             std::cin >> prefix;
 
-            spellchecker.searchPrefix(prefix);
+            try
+            {
+                spellchecker.searchPrefix(prefix);
+            }
+            catch (illegal_exception &e)
+            {
+                std::cout << e.what() << std::endl;
+            }
         }
 
         else if (command == "e") // erase a word
         {
             std::cin >> word;
 
-            if (spellchecker.erase(word))
+            try
             {
-                std::cout << "success\n";
+                if (spellchecker.erase(word))
+                {
+                    std::cout << "success\n";
+                }
+                else
+                {
+                    std::cout << "failure\n";
+                }
             }
-            else
+            catch (illegal_exception &e)
             {
-                std::cout << "failure\n";
+                std::cout << e.what() << std::endl;
             }
         }
 
