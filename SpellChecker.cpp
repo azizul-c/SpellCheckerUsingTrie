@@ -239,26 +239,6 @@ bool Trie::erase(std::string word)
             nodesToErase[j]->setNumberOfChildren(0);
         }
 
-        // tempPrefix = "";
-
-        // for (int k = 0; k < word.length(); k++)
-        // {
-        //     tempPrefix += word.at(k);
-
-        //     if (searchPrefix(tempPrefix) == 1)
-        //     {
-        //         for (int l = k; l < word.length(); l++)
-        //         {
-        //             nodesToErase[l]->modifyNodeValidity(false);
-        //             nodesToErase[l]->setCharacter('\0');
-        //         }
-
-        //         delete nodesToErase;
-        //         numberOfWords--;
-        //         return true;
-        //     }
-        // }
-
         delete nodesToErase;
         numberOfWords--;
         return true;
@@ -318,6 +298,39 @@ void Trie::inOrderTraversalForClear(Node *currNode)
         if (currNode->children[i]->isNodeValid() == true)
         {
             inOrderTraversalForClear(currNode->children[i]);
+        }
+    }
+}
+
+void Trie::runPrintWords()
+{
+    printWords(root, "");
+    std::cout << "\n";
+}
+
+void Trie::printWords(Node *currNode, std::string prefix)
+{
+    // Base cases
+    if (currNode->isNodeValid() == false)
+    {
+        return;
+    }
+    else if (currNode->isEndOfWord())
+    {
+        std::cout << prefix << " ";
+        return;
+    }
+
+    // Traverse subtrees for each node
+    for (int i = 0; i < 26; i++)
+    {
+        if (currNode->children[i]->isNodeValid() == true)
+        {
+            // Add current character to the prefix
+            prefix += currNode->children[i]->getCharacter();
+
+            printWords(currNode->children[i], prefix);
+            prefix.pop_back();
         }
     }
 }

@@ -60,6 +60,7 @@ int main()
 
         else if (command == "p") // print all the words in the trie, alphabetically
         {
+            spellchecker.runPrintWords();
         }
 
         else if (command == "spellcheck")

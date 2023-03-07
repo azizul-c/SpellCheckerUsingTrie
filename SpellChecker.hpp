@@ -19,7 +19,8 @@ public:
     bool insert(std::string word);
     void searchPrefix(std::string prefix);
     bool erase(std::string word);
-    void printWords();
+    void runPrintWords();
+    void printWords(Node *currNode, std::string prefix);
     void spellcheck(std::string word);
     void isEmpty();
     bool clear();
