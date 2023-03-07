@@ -24,6 +24,7 @@ Node::Node(char c)
     character = c;
     endOfWord = false;
     validNode = true;
+    numberOfChildren = 0;
 
     children = new Node *[26];
 
@@ -63,6 +64,26 @@ void Node::setCharacter(char c)
     character = c;
 }
 
+int Node::getNumberOfChildren()
+{
+    return numberOfChildren;
+}
+
+void Node::setNumberOfChildren(int numberOfKids)
+{
+    numberOfChildren = numberOfKids;
+}
+
+void Node::incrementNumberOfChildren()
+{
+    numberOfChildren++;
+}
+
+void Node::decrementNumberOfChildren()
+{
+    numberOfChildren--;
+}
+
 /*
 ===================================================================
 ===  Trie Functions Definitions ===
@@ -80,7 +101,6 @@ Trie::~Trie()
 {
     delete root;
     delete nullNode;
-    delete nodesToErase;
 
     // need to traverse the tree and delete everything too! (Call clear())
 }
@@ -101,6 +121,7 @@ bool Trie::insert(std::string word)
 
             // Create a new node for the current letter of the word, if there isn't a valid node for that letter yet
             currentNode->children[currentCharacter - 'A'] = new Node(currentCharacter);
+            currentNode->incrementNumberOfChildren();
         }
 
         // Update the current node to be the current letter of the word
@@ -204,15 +225,39 @@ bool Trie::erase(std::string word)
 
         for (int j = word.length() - 1; j >= 0; j--)
         {
-            // if we come across another endOfWord besides the end of the word being erased
-            if (nodesToErase[j]->isEndOfWord() && j != word.length() - 1)
+            if (nodesToErase[j]->getNumberOfChildren() > 1)
             {
+                nodesToErase[j]->decrementNumberOfChildren();
+
                 delete nodesToErase;
-                return true; // don't delete the rest of the letters, because they belong to another word
+                numberOfWords--;
+                return true; // don't delete the rest of the letters, because they belong to other word(s)
             }
 
-            delete nodesToErase[j];
+            nodesToErase[j]->modifyNodeValidity(false);
+            nodesToErase[j]->setCharacter('\0');
+            nodesToErase[j]->setNumberOfChildren(0);
         }
+
+        // tempPrefix = "";
+
+        // for (int k = 0; k < word.length(); k++)
+        // {
+        //     tempPrefix += word.at(k);
+
+        //     if (searchPrefix(tempPrefix) == 1)
+        //     {
+        //         for (int l = k; l < word.length(); l++)
+        //         {
+        //             nodesToErase[l]->modifyNodeValidity(false);
+        //             nodesToErase[l]->setCharacter('\0');
+        //         }
+
+        //         delete nodesToErase;
+        //         numberOfWords--;
+        //         return true;
+        //     }
+        // }
 
         delete nodesToErase;
         numberOfWords--;
@@ -239,6 +284,7 @@ bool Trie::clear()
 
             allNodesInTrie[i]->modifyNodeValidity(false);
             allNodesInTrie[i]->setCharacter('\0');
+            allNodesInTrie[i]->setNumberOfChildren(0);
             allNodesInTrie.pop_back();
         }
 

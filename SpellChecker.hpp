@@ -37,6 +37,7 @@ private:
     int numberOfWords;
     Node **nodesToErase;
     std::vector<Node *> allNodesInTrie;
+    std::string tempPrefix;
 };
 
 class Node
@@ -48,8 +49,12 @@ public:
     char getCharacter();
     bool isEndOfWord();
     bool isNodeValid();
+    int getNumberOfChildren();
     void setCharAsEndOfWord(bool lastLetter);
     void modifyNodeValidity(bool modification);
+    void setNumberOfChildren(int numberOfKids);
+    void incrementNumberOfChildren();
+    void decrementNumberOfChildren();
     void setCharacter(char c);
 
     Node **children;
@@ -58,4 +63,5 @@ private:
     char character;
     bool endOfWord;
     bool validNode;
+    int numberOfChildren;
 };

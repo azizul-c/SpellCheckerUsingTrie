@@ -47,6 +47,15 @@ int main()
         else if (command == "e") // erase a word
         {
             std::cin >> word;
+
+            if (spellchecker.erase(word))
+            {
+                std::cout << "success\n";
+            }
+            else
+            {
+                std::cout << "failure\n";
+            }
         }
 
         else if (command == "p") // print all the words in the trie, alphabetically
