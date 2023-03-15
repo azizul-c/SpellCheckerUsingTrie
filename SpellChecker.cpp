@@ -14,9 +14,7 @@ Node::Node()
 
 Node::~Node()
 {
-    // validNode = false;
-    // character = '\0';
-    // delete children;
+    delete[] children;
 }
 
 Node::Node(char c)
@@ -30,7 +28,7 @@ Node::Node(char c)
 
     for (int i = 0; i < 26; i++)
     {
-        children[i] = new Node();
+        children[i] = nullptr;
     }
 }
 
@@ -93,7 +91,7 @@ void Node::decrementNumberOfChildren()
 Trie::Trie()
 {
     root = new Node('\0');
-    nullNode = new Node();
+    // nullNode = new Node();
     numberOfWords = 0;
 }
 
@@ -101,7 +99,8 @@ Trie::~Trie()
 {
     clear();
     delete root;
-    delete nullNode;
+
+    // delete root;
 }
 
 bool Trie::insert(std::string word)
@@ -116,7 +115,7 @@ bool Trie::insert(std::string word)
         }
     }
 
-    if (findNode(word)->isEndOfWord()) // if the word exists already
+    if (findNode(word) != nullptr && findNode(word)->isEndOfWord()) // if the word exists already
     {
         return false;
     }
@@ -127,7 +126,7 @@ bool Trie::insert(std::string word)
     {
         currentCharacter = word.at(i);
 
-        if (currentNode->children[currentCharacter - 'A']->isNodeValid() == false)
+        if (currentNode->children[currentCharacter - 'A'] == nullptr)
         {
             // ASCII value of A = 65, B = 66, C = 67, and so on
             // By subtracting 'A', we subtract 65 from the ASCII value of the current character
@@ -157,12 +156,12 @@ Node *Trie::findNode(std::string word)
     {
         currentCharacter = word.at(i);
 
-        if (currentNode->children[currentCharacter - 'A']->isNodeValid() == false)
+        if (currentNode->children[currentCharacter - 'A'] == nullptr)
         {
             // if at any point in the traversal, an expected letter of the word doesn't exist in the trie,
             // then the word isn't in the trie
 
-            return nullNode;
+            return nullptr;
         }
 
         currentNode = currentNode->children[currentCharacter - 'A'];
@@ -186,7 +185,7 @@ void Trie::searchPrefix(std::string prefix)
 
     countPrefixInstances = 0;
 
-    if (findNode(prefix)->isNodeValid()) // if the prefix exists
+    if (findNode(prefix) != nullptr) // if the prefix exists
     {
         inOrderTraversalForPrefix(findNode(prefix));
 
@@ -201,13 +200,13 @@ void Trie::searchPrefix(std::string prefix)
 void Trie::inOrderTraversalForPrefix(Node *currNode)
 {
     // Base case
-    if (currNode->isNodeValid() == false)
+    if (currNode == nullptr)
     {
         return;
     }
 
     // Traverse Left subtree
-    if (currNode->children[0]->isNodeValid() == true)
+    if (currNode->children[0] != nullptr)
     {
         inOrderTraversalForPrefix(currNode->children[0]);
     }
@@ -221,7 +220,7 @@ void Trie::inOrderTraversalForPrefix(Node *currNode)
     // Traverse right subtrees
     for (int i = 1; i < 26; i++)
     {
-        if (currNode->children[i]->isNodeValid() == true)
+        if (currNode->children[i] != nullptr)
         {
             inOrderTraversalForPrefix(currNode->children[i]);
         }
@@ -233,11 +232,14 @@ void Trie::spellcheck(std::string word)
     firstLetterOfWord = "";
     firstLetterOfWord += word.at(0);
 
-    if (findNode(word)->isEndOfWord()) // check if the word exists in the trie
+    if (findNode(word) != nullptr)
     {
-        std::cout << "correct\n";
+        if (findNode(word)->isEndOfWord()) // check if the word exists in the trie
+        {
+            std::cout << "correct\n";
+        }
     }
-    else if (findNode(firstLetterOfWord)->isNodeValid() == false) // if the first letter of the word isn't in the tree
+    else if (findNode(firstLetterOfWord) == nullptr) // if the first letter of the word isn't in the tree
     {
         std::cout << "\n";
     }
@@ -254,7 +256,7 @@ void Trie::spellcheck(std::string word)
         {
             currentCharacter = word.at(i);
 
-            if (currentNode->children[currentCharacter - 'A']->isNodeValid() == false)
+            if (currentNode->children[currentCharacter - 'A'] == nullptr)
             {
                 // if at any point in the traversal, an expected letter of the word isn't in the tree,
                 // we print out what the other words that follow the same path
@@ -299,50 +301,75 @@ bool Trie::erase(std::string word)
         }
     }
 
-    if (findNode(word)->isEndOfWord()) // if the word exists
+    if (findNode(word) != nullptr)
     {
-        if (findNode(word)->getNumberOfChildren() > 0) // if the word is a prefix for another word
+        if (findNode(word)->isEndOfWord()) // if the word exists
         {
-            // we dont want to delete the nodes, just stop marking it as a word
-            findNode(word)->setCharAsEndOfWord(false);
+            if (findNode(word)->getNumberOfChildren() > 0) // if the word is a prefix for another word
+            {
+                // we dont want to delete the nodes, just stop marking it as a word
+                findNode(word)->setCharAsEndOfWord(false);
+                numberOfWords--;
+                return true;
+            }
+
+            nodesToErase = new Node *[word.length()];
+            currentNode = root;
+
+            for (int i = 0; i < word.length(); i++)
+            {
+                currentCharacter = word.at(i);
+                currentNode = currentNode->children[currentCharacter - 'A'];
+                nodesToErase[i] = currentNode;
+            }
+
+            for (int j = word.length() - 1; j >= 0; j--)
+            {
+                if (nodesToErase[j]->getNumberOfChildren() > 1)
+                {
+                    nodesToErase[j]->decrementNumberOfChildren();
+
+                    // Delete nodes & deallocate the array
+                    // for (int k = word.length(); k > j; k--)
+                    // {
+                    //     delete nodesToErase[k];
+                    // }
+                    delete[] nodesToErase;
+
+                    numberOfWords--;
+                    return true; // don't delete the rest of the letters, because they belong to other word(s)
+                }
+
+                // nodesToErase[j]->modifyNodeValidity(false);
+                // nodesToErase[j]->setCharacter('\0');
+                // nodesToErase[j]->setNumberOfChildren(0);
+                currentCharacter = nodesToErase[j]->getCharacter();
+
+                if (j > 0)
+                {
+                    delete nodesToErase[j - 1]->children[currentCharacter - 'A'];
+                    nodesToErase[j - 1]->children[currentCharacter - 'A'] = nullptr;
+                }
+                else
+                {
+                    delete root->children[currentCharacter - 'A'];
+                    root->children[currentCharacter - 'A'] = nullptr;
+                }
+            }
+
+            // Deallocate nodesToErase
+            // for (int k = 0; k < word.length(); k++)
+            // {
+            //     delete nodesToErase[k];
+            // }
+            delete[] nodesToErase;
+
             numberOfWords--;
             return true;
         }
-
-        nodesToErase = new Node *[word.length()];
-        currentNode = root;
-
-        for (int i = 0; i < word.length(); i++)
-        {
-            currentCharacter = word.at(i);
-            currentNode = currentNode->children[currentCharacter - 'A'];
-            nodesToErase[i] = currentNode;
-        }
-
-        for (int j = word.length() - 1; j >= 0; j--)
-        {
-            if (nodesToErase[j]->getNumberOfChildren() > 1)
-            {
-                nodesToErase[j]->decrementNumberOfChildren();
-
-                delete nodesToErase;
-                numberOfWords--;
-                return true; // don't delete the rest of the letters, because they belong to other word(s)
-            }
-
-            nodesToErase[j]->modifyNodeValidity(false);
-            nodesToErase[j]->setCharacter('\0');
-            nodesToErase[j]->setNumberOfChildren(0);
-        }
-
-        delete nodesToErase;
-        numberOfWords--;
-        return true;
     }
-    else
-    {
-        return false; // failure
-    }
+
+    return false; // failure
 }
 
 bool Trie::clear()
@@ -358,13 +385,25 @@ bool Trie::clear()
         {
             // allNodesInTrie[0] has the root, we dont want to override it
 
-            allNodesInTrie[i]->modifyNodeValidity(false);
-            allNodesInTrie[i]->setCharacter('\0');
-            allNodesInTrie[i]->setNumberOfChildren(0);
+            // allNodesInTrie[i]->modifyNodeValidity(false);
+            // allNodesInTrie[i]->setCharacter('\0');
+            // allNodesInTrie[i]->setNumberOfChildren(0);
+
+            currentCharacter = allNodesInTrie[i]->getCharacter();
+
+            delete allNodesInTrie[i - 1]->children[currentCharacter - 'A'];
+            allNodesInTrie[i - 1]->children[currentCharacter - 'A'] = nullptr;
+
+            // else
+            // {
+            //     delete root->children[currentCharacter - 'A'];
+            //     root->children[currentCharacter - 'A'] = nullptr;
+            // }
+
             allNodesInTrie.pop_back();
         }
 
-        allNodesInTrie.pop_back(); // pop back once more to remove root
+        // allNodesInTrie.pop_back(); // pop back once more to remove root
         numberOfWords = 0;
     }
 
@@ -374,13 +413,13 @@ bool Trie::clear()
 void Trie::inOrderTraversalForClear(Node *currNode)
 {
     // Base case
-    if (currNode->isNodeValid() == false)
+    if (currNode == nullptr)
     {
         return;
     }
 
     // Traverse Left subtree
-    if (currNode->children[0]->isNodeValid() == true)
+    if (currNode->children[0] != nullptr)
     {
         inOrderTraversalForClear(currNode->children[0]);
     }
@@ -391,7 +430,7 @@ void Trie::inOrderTraversalForClear(Node *currNode)
     // Traverse right subtrees
     for (int i = 1; i < 26; i++)
     {
-        if (currNode->children[i]->isNodeValid() == true)
+        if (currNode->children[i] != nullptr)
         {
             inOrderTraversalForClear(currNode->children[i]);
         }
@@ -411,7 +450,7 @@ void Trie::runPrintWords()
 void Trie::printWords(Node *currNode, std::string prefix)
 {
     // Base cases
-    if (currNode->isNodeValid() == false)
+    if (currNode == nullptr)
     {
         return;
     }
@@ -428,7 +467,7 @@ void Trie::printWords(Node *currNode, std::string prefix)
     // Traverse subtrees for each node
     for (int i = 0; i < 26; i++)
     {
-        if (currNode->children[i]->isNodeValid() == true)
+        if (currNode->children[i] != nullptr)
         {
             // Add current character to the prefix
             prefix += currNode->children[i]->getCharacter();
