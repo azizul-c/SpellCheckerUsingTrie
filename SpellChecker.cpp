@@ -357,11 +357,6 @@ bool Trie::erase(std::string word)
                 }
             }
 
-            // Deallocate nodesToErase
-            // for (int k = 0; k < word.length(); k++)
-            // {
-            //     delete nodesToErase[k];
-            // }
             delete[] nodesToErase;
 
             numberOfWords--;
@@ -379,62 +374,100 @@ bool Trie::clear()
 
     if (numberOfWords > 0)
     {
-        inOrderTraversalForClear(root);
+        traversalForClear(root, "");
 
-        for (int i = allNodesInTrie.size() - 1; i > 0; i--)
+        for (int i = numberOfWords - 1; i >= 0; i--)
         {
-            // allNodesInTrie[0] has the root, we dont want to override it
-
-            // allNodesInTrie[i]->modifyNodeValidity(false);
-            // allNodesInTrie[i]->setCharacter('\0');
-            // allNodesInTrie[i]->setNumberOfChildren(0);
-
-            currentCharacter = allNodesInTrie[i]->getCharacter();
-
-            delete allNodesInTrie[i - 1]->children[currentCharacter - 'A'];
-            allNodesInTrie[i - 1]->children[currentCharacter - 'A'] = nullptr;
-
-            // else
-            // {
-            //     delete root->children[currentCharacter - 'A'];
-            //     root->children[currentCharacter - 'A'] = nullptr;
-            // }
-
-            allNodesInTrie.pop_back();
+            erase(allTheWords[i]);
+            allTheWords.pop_back();
         }
-
-        // allNodesInTrie.pop_back(); // pop back once more to remove root
-        numberOfWords = 0;
     }
+
+    // {
+    //     inOrderTraversalForClear(root);
+
+    //     for (int i = allNodesInTrie.size() - 1; i > 0; i--)
+    //     {
+    //         // allNodesInTrie[0] has the root, we dont want to override it
+
+    //         // allNodesInTrie[i]->modifyNodeValidity(false);
+    //         // allNodesInTrie[i]->setCharacter('\0');
+    //         // allNodesInTrie[i]->setNumberOfChildren(0);
+
+    //         currentCharacter = allNodesInTrie[i]->getCharacter();
+
+    //         delete allNodesInTrie[i - 1]->children[currentCharacter - 'A'];
+    //         allNodesInTrie[i - 1]->children[currentCharacter - 'A'] = nullptr;
+
+    //         // else
+    //         // {
+    //         //     delete root->children[currentCharacter - 'A'];
+    //         //     root->children[currentCharacter - 'A'] = nullptr;
+    //         // }
+
+    //         allNodesInTrie.pop_back();
+    //     }
+
+    //     // allNodesInTrie.pop_back(); // pop back once more to remove root
+    //     numberOfWords = 0;
+    // }
 
     return true;
 }
 
-void Trie::inOrderTraversalForClear(Node *currNode)
+void Trie::traversalForClear(Node *currNode, std::string prefix)
 {
-    // Base case
+    // Base cases
     if (currNode == nullptr)
     {
         return;
     }
-
-    // Traverse Left subtree
-    if (currNode->children[0] != nullptr)
+    else if (currNode->isEndOfWord())
     {
-        inOrderTraversalForClear(currNode->children[0]);
+        allTheWords.push_back(prefix); // add the word to the list
+
+        if (currNode->getNumberOfChildren() == 0)
+        {
+            return;
+        }
     }
 
-    // Add current node to a vector to collect it
-    allNodesInTrie.push_back(currNode);
-
-    // Traverse right subtrees
-    for (int i = 1; i < 26; i++)
+    // Traverse subtrees for each node
+    for (int i = 0; i < 26; i++)
     {
         if (currNode->children[i] != nullptr)
         {
-            inOrderTraversalForClear(currNode->children[i]);
+            // Add current character to the prefix
+            prefix += currNode->children[i]->getCharacter();
+
+            traversalForClear(currNode->children[i], prefix);
+            prefix.pop_back();
         }
     }
+
+    // // Base case
+    // if (currNode == nullptr)
+    // {
+    //     return;
+    // }
+
+    // // Traverse Left subtree
+    // if (currNode->children[0] != nullptr)
+    // {
+    //     inOrderTraversalForClear(currNode->children[0]);
+    // }
+
+    // // Add current node to a vector to collect it
+    // allNodesInTrie.push_back(currNode);
+
+    // // Traverse right subtrees
+    // for (int i = 1; i < 26; i++)
+    // {
+    //     if (currNode->children[i] != nullptr)
+    //     {
+    //         inOrderTraversalForClear(currNode->children[i]);
+    //     }
+    // }
 }
 
 void Trie::runPrintWords()

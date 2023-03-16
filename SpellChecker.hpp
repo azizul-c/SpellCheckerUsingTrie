@@ -29,7 +29,7 @@ public:
 private:
     Node *findNode(std::string word);
     void inOrderTraversalForPrefix(Node *currNode);
-    void inOrderTraversalForClear(Node *currNode);
+    void traversalForClear(Node *currNode, std::string prefix);
     Node *root;
     Node *currentNode;
     Node *nullNode;
@@ -38,6 +38,7 @@ private:
     int numberOfWords;
     Node **nodesToErase;
     std::vector<Node *> allNodesInTrie;
+    std::vector<std::string> allTheWords;
     std::string tempPrefix;
     std::string firstLetterOfWord;
 };
