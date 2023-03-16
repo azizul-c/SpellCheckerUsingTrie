@@ -7,11 +7,6 @@
 ===  Node Functions Definitions ===
 ===================================================================
 */
-Node::Node()
-{
-    validNode = false;
-}
-
 Node::~Node()
 {
     delete[] children;
@@ -21,7 +16,6 @@ Node::Node(char c)
 {
     character = c;
     endOfWord = false;
-    validNode = true;
     numberOfChildren = 0;
 
     children = new Node *[26];
@@ -42,19 +36,9 @@ bool Node::isEndOfWord()
     return endOfWord;
 }
 
-bool Node::isNodeValid()
-{
-    return validNode;
-}
-
 void Node::setCharAsEndOfWord(bool lastLetter)
 {
     endOfWord = lastLetter;
-}
-
-void Node::modifyNodeValidity(bool modification)
-{
-    validNode = modification;
 }
 
 void Node::setCharacter(char c)
@@ -65,11 +49,6 @@ void Node::setCharacter(char c)
 int Node::getNumberOfChildren()
 {
     return numberOfChildren;
-}
-
-void Node::setNumberOfChildren(int numberOfKids)
-{
-    numberOfChildren = numberOfKids;
 }
 
 void Node::incrementNumberOfChildren()
@@ -234,41 +213,42 @@ void Trie::spellcheck(std::string word)
         if (findNode(word)->isEndOfWord()) // check if the word exists in the trie
         {
             std::cout << "correct\n";
+            return;
         }
     }
     else if (findNode(firstLetterOfWord) == nullptr) // if the first letter of the word isn't in the tree
     {
         std::cout << "\n";
+        return;
     }
-    else
+
+    // traverse down the tree, following the path of the letters that comprise the given word.
+    // if at any point in the traversal, a letter of the word cant be found, print out all the
+    // other branches of that node.
+
+    currentNode = root;
+    tempPrefix = "";
+
+    for (int i = 0; i < word.length(); i++)
     {
-        // traverse down the tree, following the path of the letters that comprise the given word.
-        // if at any point in the traversal, a letter of the word cant be found, print out all the
-        // other branches of that node.
+        currentCharacter = word.at(i);
 
-        currentNode = root;
-        tempPrefix = "";
-
-        for (int i = 0; i < word.length(); i++)
+        if (currentNode->children[currentCharacter - 'A'] == nullptr)
         {
-            currentCharacter = word.at(i);
+            // if at any point in the traversal, an expected letter of the word isn't in the tree,
+            // we print out what the other words that follow the same path
 
-            if (currentNode->children[currentCharacter - 'A'] == nullptr)
-            {
-                // if at any point in the traversal, an expected letter of the word isn't in the tree,
-                // we print out what the other words that follow the same path
+            printWords(currentNode, tempPrefix);
+            std::cout << "\n";
+            break;
+        }
 
-                printWords(currentNode, tempPrefix);
-                std::cout << "\n";
-                break;
-            }
-            else if (i == word.length() - 1) // if we've made it to the end of the for loop, print all the words with this prefix
+        if (i == word.length() - 1) // if we've made it to the end of the for loop, print all the words with this prefix
+        {
+            if (i == 0) // special case: if the input was only one letter
             {
-                if (i == 0) // special case: if the input was only one letter
-                {
-                    tempPrefix = word;
-                    currentNode = currentNode->children[currentCharacter - 'A'];
-                }
+                tempPrefix = word;
+                currentNode = currentNode->children[currentCharacter - 'A'];
 
                 printWords(currentNode, tempPrefix);
                 std::cout << "\n";
@@ -277,7 +257,14 @@ void Trie::spellcheck(std::string word)
 
             currentNode = currentNode->children[currentCharacter - 'A'];
             tempPrefix += currentNode->getCharacter();
+
+            printWords(currentNode, tempPrefix);
+            std::cout << "\n";
+            break;
         }
+
+        currentNode = currentNode->children[currentCharacter - 'A'];
+        tempPrefix += currentNode->getCharacter();
     }
 }
 
@@ -375,10 +362,7 @@ bool Trie::clear()
 
         for (int i = numberOfWords - 1; i >= 0; i--)
         {
-            if (!erase(allTheWords[i]))
-            {
-                std::cout << "failed to erase the word" << allTheWords[i] << std::endl;
-            }
+            erase(allTheWords[i]);
             allTheWords.pop_back();
         }
     }
