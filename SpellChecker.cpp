@@ -91,7 +91,6 @@ void Node::decrementNumberOfChildren()
 Trie::Trie()
 {
     root = new Node('\0');
-    // nullNode = new Node();
     numberOfWords = 0;
 }
 
@@ -99,8 +98,6 @@ Trie::~Trie()
 {
     clear();
     delete root;
-
-    // delete root;
 }
 
 bool Trie::insert(std::string word)
@@ -325,35 +322,38 @@ bool Trie::erase(std::string word)
 
             for (int j = word.length() - 1; j >= 0; j--)
             {
-                if (nodesToErase[j]->getNumberOfChildren() > 1)
-                {
-                    nodesToErase[j]->decrementNumberOfChildren();
-
-                    // Delete nodes & deallocate the array
-                    // for (int k = word.length(); k > j; k--)
-                    // {
-                    //     delete nodesToErase[k];
-                    // }
-                    delete[] nodesToErase;
-
-                    numberOfWords--;
-                    return true; // don't delete the rest of the letters, because they belong to other word(s)
-                }
-
-                // nodesToErase[j]->modifyNodeValidity(false);
-                // nodesToErase[j]->setCharacter('\0');
-                // nodesToErase[j]->setNumberOfChildren(0);
                 currentCharacter = nodesToErase[j]->getCharacter();
 
                 if (j > 0)
                 {
                     delete nodesToErase[j - 1]->children[currentCharacter - 'A'];
                     nodesToErase[j - 1]->children[currentCharacter - 'A'] = nullptr;
+
+                    if (nodesToErase[j - 1]->getNumberOfChildren() > 1)
+                    {
+                        nodesToErase[j - 1]->decrementNumberOfChildren();
+
+                        delete[] nodesToErase;
+
+                        numberOfWords--;
+                        return true; // don't delete the rest of the letters, because they belong to other word(s)
+                    }
+
+                    nodesToErase[j - 1]->decrementNumberOfChildren();
+
+                    if (nodesToErase[j - 1]->isEndOfWord())
+                    {
+                        delete[] nodesToErase;
+                        numberOfWords--;
+                        return true; // dont delete rest of the letters, they belong to another word
+                    }
                 }
                 else
                 {
                     delete root->children[currentCharacter - 'A'];
                     root->children[currentCharacter - 'A'] = nullptr;
+
+                    root->decrementNumberOfChildren();
                 }
             }
 
@@ -369,48 +369,19 @@ bool Trie::erase(std::string word)
 
 bool Trie::clear()
 {
-    // use an in order traversal. accumulate all the nodes into a vector.
-    // go thru the vector and delete all the nodes
-
     if (numberOfWords > 0)
     {
         traversalForClear(root, "");
 
         for (int i = numberOfWords - 1; i >= 0; i--)
         {
-            erase(allTheWords[i]);
+            if (!erase(allTheWords[i]))
+            {
+                std::cout << "failed to erase the word" << allTheWords[i] << std::endl;
+            }
             allTheWords.pop_back();
         }
     }
-
-    // {
-    //     inOrderTraversalForClear(root);
-
-    //     for (int i = allNodesInTrie.size() - 1; i > 0; i--)
-    //     {
-    //         // allNodesInTrie[0] has the root, we dont want to override it
-
-    //         // allNodesInTrie[i]->modifyNodeValidity(false);
-    //         // allNodesInTrie[i]->setCharacter('\0');
-    //         // allNodesInTrie[i]->setNumberOfChildren(0);
-
-    //         currentCharacter = allNodesInTrie[i]->getCharacter();
-
-    //         delete allNodesInTrie[i - 1]->children[currentCharacter - 'A'];
-    //         allNodesInTrie[i - 1]->children[currentCharacter - 'A'] = nullptr;
-
-    //         // else
-    //         // {
-    //         //     delete root->children[currentCharacter - 'A'];
-    //         //     root->children[currentCharacter - 'A'] = nullptr;
-    //         // }
-
-    //         allNodesInTrie.pop_back();
-    //     }
-
-    //     // allNodesInTrie.pop_back(); // pop back once more to remove root
-    //     numberOfWords = 0;
-    // }
 
     return true;
 }
@@ -444,30 +415,6 @@ void Trie::traversalForClear(Node *currNode, std::string prefix)
             prefix.pop_back();
         }
     }
-
-    // // Base case
-    // if (currNode == nullptr)
-    // {
-    //     return;
-    // }
-
-    // // Traverse Left subtree
-    // if (currNode->children[0] != nullptr)
-    // {
-    //     inOrderTraversalForClear(currNode->children[0]);
-    // }
-
-    // // Add current node to a vector to collect it
-    // allNodesInTrie.push_back(currNode);
-
-    // // Traverse right subtrees
-    // for (int i = 1; i < 26; i++)
-    // {
-    //     if (currNode->children[i] != nullptr)
-    //     {
-    //         inOrderTraversalForClear(currNode->children[i]);
-    //     }
-    // }
 }
 
 void Trie::runPrintWords()
