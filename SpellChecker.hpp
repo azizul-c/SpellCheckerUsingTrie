@@ -32,12 +32,10 @@ private:
     void traversalForClear(Node *currNode, std::string prefix);
     Node *root;
     Node *currentNode;
-    Node *nullNode;
     char currentCharacter;
     int countPrefixInstances;
     int numberOfWords;
     Node **nodesToErase;
-    std::vector<Node *> allNodesInTrie;
     std::vector<std::string> allTheWords;
     std::string tempPrefix;
     std::string firstLetterOfWord;
@@ -46,16 +44,12 @@ private:
 class Node
 {
 public:
-    Node();
     ~Node();
     Node(char c);
     char getCharacter();
     bool isEndOfWord();
-    bool isNodeValid();
     int getNumberOfChildren();
     void setCharAsEndOfWord(bool lastLetter);
-    void modifyNodeValidity(bool modification);
-    void setNumberOfChildren(int numberOfKids);
     void incrementNumberOfChildren();
     void decrementNumberOfChildren();
     void setCharacter(char c);
@@ -65,7 +59,6 @@ public:
 private:
     char character;
     bool endOfWord;
-    bool validNode;
     int numberOfChildren;
 };
 
