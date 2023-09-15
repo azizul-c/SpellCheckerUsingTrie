@@ -20,6 +20,6 @@ This project was completed as part of the Winter 2023 offering of ECE 250: Algor
 | p | | Prints all words in the trie in alphabetical order on a single line (using depth-first traversal). |
 | spellcheck | word | Spell-checks the word or offers suggestions if the word is not spelled correctly. As an example, if the trie had the words `DOUBT, DOUGH, DOUBLE` in it and you were to run `spellcheck DOG`, all the words in the trie starting with `DO` would be printed in alphabetical order. |
 | empty | | Used to check whether the trie is empty. |
-| empty | | Used to delete all the words in the trie. |
+| clear | | Used to delete all the words in the trie. |
 | size | | Outputs the number of words that are in the trie. |
 | exit | | Terminates the program. |
