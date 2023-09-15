@@ -13,6 +13,7 @@ This project was completed as part of the Winter 2023 offering of ECE 250: Algor
 ## Usage
 | Command | Parameters | Description |
 | --- | --- | --- |
+| load | | Loads all the words from `corpus.txt` into the trie. Duplicate words are not inserted. |
 | i | word | Insert a new word into the trie. |
 | c | prefix | Prints the number of words in the trie that have the given prefix. |
 | e | word | Erase a word from the trie. |
